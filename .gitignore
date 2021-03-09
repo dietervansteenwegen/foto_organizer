@@ -1,0 +1,10 @@
+*.list
+*.log
+*.1
+*.2
+*.3
+*.4
+images/
+exif-master-docs/
+__pycache__/
+.vscode/
