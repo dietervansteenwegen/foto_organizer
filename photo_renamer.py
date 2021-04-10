@@ -87,9 +87,7 @@ class PhotoRenamer:
         """
         if not (self.dt and self.dt_orig):
             return True
-        if not self.dt == self.dt_orig:
-            return False
-        return True
+        return self.dt == self.dt_orig
 
 
     def new_filename(self, include_camera_model = True, keywords_to_keep = None, replace_chars_in_model = None):
@@ -133,11 +131,11 @@ class PhotoRenamer:
         """
         if not os.path.isfile(base_filename):
             return base_filename
-        else:
-            with open(DOUBLES_FILENAME, 'a+') as file:
-                file.write(base_filename + '\n')
-            if not process_doubles:
-                return None
+
+        with open(DOUBLES_FILENAME, 'a+') as file:
+            file.write(base_filename + '\n')
+        if not process_doubles:
+            return None
         counter = 1
         filename, ext = base_filename.rsplit('.', 1)
         new_filename = filename+ '_COPY[{}]' + '.' + ext

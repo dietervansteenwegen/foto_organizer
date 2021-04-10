@@ -7,7 +7,7 @@ from photo_renamer import PhotoRenamer as pr
 from datetime import datetime
 from fnmatch import fnmatch as filename_match
 
-IMAGE_DIR = r'G:\temp2\Motorola moto g(8) plus'\\
+IMAGE_DIR = r'G:\temp2\Motorola moto g(8) plus'
 INCLUDE_CAMERA_MODEL = True
 REPLACE_CHARS_IN_MODEL=(('_','-'),('(',''),(')',''),(' ','-'))
 KEYWORDS_TO_KEEP = ['HDR', 'PORTRAIT', 'WA', 'BURST', 'COVER', 'TOP']
@@ -43,8 +43,7 @@ def find_files(source_dir, pattern, logger = None, e = None):
         if logger: logger.debug(msg)
         if e:
             e.set()
-        for file in files:
-            yield file
+        yield from files
     except FileNotFoundError:
         import sys
         msg = 'FileNotFoundError: No files found, does directory exist? Exiting...'
@@ -53,10 +52,7 @@ def find_files(source_dir, pattern, logger = None, e = None):
         sys.exit()
 
 def check_multiple_patterns(file, patterns):
-    for pattern in patterns:
-        if filename_match(file,pattern):
-            return True
-    return False
+    return any(filename_match(file,pattern) for pattern in patterns)
 
 
 def print_results():
