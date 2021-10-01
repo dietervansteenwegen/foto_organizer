@@ -63,14 +63,14 @@ def find_files(source_dir: str,
         ]  # all files (full path) in (subdirs of) source_dir
         files_full = [file for file in all_files_full if check_multiple_patterns(file, pattern)]
 
-        msg = f'Done creating file list, total of {len(files)} files in {source_dir}'
+        msg = f'Done creating file list, total of {len(files_full)} files in {source_dir}'
         print(msg)
         logger.debug(msg)
 
         if e:
             e.set()
 
-        yield from files
+        yield from files_full
 
     except FileNotFoundError:
         import sys
