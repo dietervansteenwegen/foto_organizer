@@ -10,11 +10,11 @@ from fnmatch import fnmatch as filename_match
 INCLUDE_CAMERA_MODEL: bool = True
 REPLACE_CHARS_IN_MODEL = (('_', '-'), ('(', ''), (')', ''), (' ', '-'))
 KEYWORDS_TO_KEEP = ['HDR', 'PORTRAIT', 'WA', 'BURST', 'COVER', 'TOP']
-PROCESS_DOUBLES: bool = True  # if a picture with same datetime exist: True: rename, else: don't process original
+PROCESS_DOUBLES: bool = False  # if a picture with same datetime exist: True: rename, else: don't process original
 DT_AND_DT_ORIG_NEED_TO_MATCH: bool = False
 # IMAGE_DIR = 'P:\Automatic Upload\Motorola moto g(8) plus'
-SOURCE_PATH = 'P:\\Automatic Upload\\temp'
-TARGET_PATH = 'P:\\fotos\\g8_sorted'
+SOURCE_PATH = 'P:/temp'
+TARGET_PATH = 'P:/Automatic Upload/temp2'
 
 MSG_PROCESSED = ('Processed: {0[processed]}, moved: {0[moved]}, double: {0[double]}, '
                  'no dt: {0[no_dt]}, whatsapp: {0[whatsapp]}, dt_mismatch: {0[dt_mismatch]}')
@@ -127,11 +127,15 @@ def print_info(e: threading.Event = None) -> None:
         sleep(5)
 
 
-def main_operation(abs_src_path: str, logger: logging.Logger, e: threading.Event = None):
+def main_operation(abs_src_path: str, 
+                   abs_target_path:str, 
+                   logger: logging.Logger, 
+                   e: threading.Event = None):
     """List all files to be checked, then go over them and move if necessary.
 
     Args:
         abs_src_path (str): Absolute source directory (where files currently are)
+        abs_target_path (str): Absolute target directory (where files should go)
         logger (logging.Logger): where to log to
         e (threading.Event, optional): [description]. Defaults to None.
     """
@@ -159,8 +163,10 @@ def main_operation(abs_src_path: str, logger: logging.Logger, e: threading.Event
             files['dt_mismatch'] += 1
             continue
 
-        new_path, new_filename = jpg.new_filename(INCLUDE_CAMERA_MODEL, KEYWORDS_TO_KEEP,
-                                                  REPLACE_CHARS_IN_MODEL)
+        new_path, new_filename = jpg.new_filename(target_path = abs_target_path, 
+                                                  include_cam_model= INCLUDE_CAMERA_MODEL, 
+                                                  keywords_to_keep= KEYWORDS_TO_KEEP,
+                                                  replace_chars_in_model= REPLACE_CHARS_IN_MODEL)
         rtn = jpg.move_file(os.path.join(abs_src_path, file), new_path, new_filename,
                             PROCESS_DOUBLES)
         if rtn[0]:
@@ -177,17 +183,18 @@ def main_operation(abs_src_path: str, logger: logging.Logger, e: threading.Event
 if __name__ == '__main__':
 
     abs_src_path = os.path.abspath(SOURCE_PATH)
+    abs_target_path = os.path.abspath(TARGET_PATH)
     logger = create_logger()
 
     start_time = datetime.now()
 
     e = threading.Event()
 
-    main_thread = threading.Thread(name='main_operation', \
-                                    target = main_operation, \
-                                    args=(abs_src_path, logger, e))
-    print_thread = threading.Thread(name='print_info', \
-                                        target=print_info, \
+    main_thread = threading.Thread(name='main_operation',
+                                    target = main_operation,
+                                    args=(abs_src_path, abs_target_path, logger, e))
+    print_thread = threading.Thread(name='print_info',
+                                        target=print_info,
                                         args=(e,),
                                         daemon = True)
     main_thread.start()
