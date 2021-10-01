@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import shutil
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 from exif import Image
 
 DOUBLES_FILENAME = 'doubles.list'
@@ -105,7 +105,7 @@ class PhotoRenamer:
                      target_path: str,
                      include_cam_model: bool = True,
                      keywords_to_keep: Union[str, None] = None,
-                     replace_chars_in_model: Union[None, list[str]] = None) -> Tuple[str, str]:
+                     replace_chars_in_model: Union[None, List[str]] = None) -> Tuple[str, str]:
         """Generate new filename based on target path and picture properties
 
         Args:
