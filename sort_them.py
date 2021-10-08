@@ -1,3 +1,8 @@
+# TODO: handling of whatsapp files that have no datetime in exif, but do have in filename
+# TODO: use command line arguments for paths, PROCESS_DOUBLES and DT_AND_DT_ORIG_NEED_TO_MATCH
+# TODO: Options for doubles: move to separate dir, delete, copy with new filename, log
+# TODO: In status print: total amount of photos, start or elapsed time
+
 import logging, logging.handlers
 import os
 import threading
@@ -12,9 +17,10 @@ REPLACE_CHARS_IN_MODEL = (('_', '-'), ('(', ''), (')', ''), (' ', '-'))
 KEYWORDS_TO_KEEP = ['HDR', 'PORTRAIT', 'WA', 'BURST', 'COVER', 'TOP']
 PROCESS_DOUBLES: bool = False  # if a picture with same datetime exist: True: rename, else: don't process original
 DT_AND_DT_ORIG_NEED_TO_MATCH: bool = False
-# IMAGE_DIR = 'P:\Automatic Upload\Motorola moto g(8) plus'
-SOURCE_PATH = 'P:/temp'
-TARGET_PATH = 'P:/Automatic Upload/temp2'
+# SOURCE_PATH = 'P:\Automatic Upload\Motorola moto g(8) plus'
+# TARGET_PATH = 'P:\Automatic Upload\deevee_sorted'
+SOURCE_PATH = 'P:\Automatic Upload\Motorola Moto G (5) Plus'
+TARGET_PATH = 'P:\Automatic Upload\smet_sorted'
 
 MSG_PROCESSED = ('Processed: {0[processed]}, moved: {0[moved]}, double: {0[double]}, '
                  'no dt: {0[no_dt]}, whatsapp: {0[whatsapp]}, dt_mismatch: {0[dt_mismatch]}')
@@ -57,10 +63,11 @@ def find_files(source_dir: str,
     try:
         logger.debug('Creating file list, this might take a while.')
 
-        all_files_full = [
-            file for file in os.listdir(source_dir)
-            if os.path.isfile(os.path.join(source_dir, file))
-        ]  # all files (full path) in (subdirs of) source_dir
+        # all_files_full = [
+        #     file for file in os.listdir(source_dir)
+        #     if os.path.isfile(os.path.join(source_dir, file))
+        # ]  # all files (full path) in (subdirs of) source_dir
+        all_files_full = [os.path.join(path, fn) for path, _, filename in os.walk(source_dir) for fn in filename]
         files_full = [file for file in all_files_full if check_multiple_patterns(file, pattern)]
 
         msg = f'Done creating file list, total of {len(files_full)} files in {source_dir}'

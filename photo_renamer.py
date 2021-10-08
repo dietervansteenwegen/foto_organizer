@@ -78,9 +78,9 @@ class PhotoRenamer:
                 but have exif data that doesn't match.
         TODO: If that is possible, check first if whatsapp image, then overwrite exif dt_orig.
         """
-        if self.src_file[:4] == 'IMG-':
+        if os.path.split(self.src_file)[1][:4] == 'IMG-':
             try:
-                without_ext = os.path.splitext(self.src_file)[0]
+                without_ext = os.path.splitext(os.path.split(self.src_file)[1])[0]
                 self.dt = datetime.strptime(without_ext[4:12], '%Y%m%d')
                 number = int(without_ext[-4:])
                 self.dt = self.dt.replace(minute=number // 60, second=number % 60)
@@ -160,7 +160,7 @@ class PhotoRenamer:
         """
 
         ideal_target_file = os.path.join(new_path, new_filename)
-        target_file = self.generate_unique_filename(ideal_target_file, process_doubles)
+        target_file = self.generate_unique_filename(ideal_target_file, process_doubles, src_file)
         is_double = (target_file != ideal_target_file)
         if target_file:
             if not os.path.isdir(new_path):
@@ -175,7 +175,8 @@ class PhotoRenamer:
         """
 
     def generate_unique_filename(self, base_filename: str,
-                                 process_doubles: bool) -> Union[str, None]:
+                                 process_doubles: bool,
+                                 src_file:str) -> Union[str, None]:
         """Generate a unique target file name
 
         If target file name already exists, add underscore and counter until target filename is
@@ -185,6 +186,7 @@ class PhotoRenamer:
             base_filename (str): original target filename
             process_doubles (bool): proceed with generating alternative filenames if 
                                     target already exists
+            src_filename (str): the original filename, used to log if double
 
         Returns:
             Union[str, None]: None if target exists but process_doubles is True
@@ -194,7 +196,7 @@ class PhotoRenamer:
             return base_filename
 
         with open(DOUBLES_FILENAME, 'a+') as file:
-            file.write(base_filename + '\n')
+            file.write(src_file + '\n')
         if not process_doubles:
             return None
         counter = 1
