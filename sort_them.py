@@ -19,8 +19,8 @@ PROCESS_DOUBLES: bool = False  # if a picture with same datetime exist: True: re
 DT_AND_DT_ORIG_NEED_TO_MATCH: bool = False
 # SOURCE_PATH = 'P:\Automatic Upload\Motorola moto g(8) plus'
 # TARGET_PATH = 'P:\Automatic Upload\deevee_sorted'
-SOURCE_PATH = 'P:\Automatic Upload\Motorola Moto G (5) Plus'
-TARGET_PATH = 'P:\Automatic Upload\smet_sorted'
+SOURCE_PATH = '/home/dieter/pCloudDrive/Automatic Upload/Motorola moto g(8) plus/'
+TARGET_PATH = '/home/dieter/pCloudDrive/Automatic Upload/deevee_sorted/'
 
 MSG_PROCESSED = ('Processed: {0[processed]}, moved: {0[moved]}, double: {0[double]}, '
                  'no dt: {0[no_dt]}, whatsapp: {0[whatsapp]}, dt_mismatch: {0[dt_mismatch]}')
@@ -67,7 +67,11 @@ def find_files(source_dir: str,
         #     file for file in os.listdir(source_dir)
         #     if os.path.isfile(os.path.join(source_dir, file))
         # ]  # all files (full path) in (subdirs of) source_dir
-        all_files_full = [os.path.join(path, fn) for path, _, filename in os.walk(source_dir) for fn in filename]
+        print(f'{source_dir=}')
+        all_files_full = [
+            os.path.join(path, fn) for path, _, filename in os.walk(source_dir) for fn in filename
+        ]
+        print(f'{len(all_files_full)=}')
         files_full = [file for file in all_files_full if check_multiple_patterns(file, pattern)]
 
         msg = f'Done creating file list, total of {len(files_full)} files in {source_dir}'
@@ -134,9 +138,9 @@ def print_info(e: threading.Event = None) -> None:
         sleep(5)
 
 
-def main_operation(abs_src_path: str, 
-                   abs_target_path:str, 
-                   logger: logging.Logger, 
+def main_operation(abs_src_path: str,
+                   abs_target_path: str,
+                   logger: logging.Logger,
                    e: threading.Event = None):
     """List all files to be checked, then go over them and move if necessary.
 
@@ -170,19 +174,19 @@ def main_operation(abs_src_path: str,
             files['dt_mismatch'] += 1
             continue
 
-        new_path, new_filename = jpg.new_filename(target_path = abs_target_path, 
-                                                  include_cam_model= INCLUDE_CAMERA_MODEL, 
-                                                  keywords_to_keep= KEYWORDS_TO_KEEP,
-                                                  replace_chars_in_model= REPLACE_CHARS_IN_MODEL)
+        new_path, new_filename = jpg.new_filename(target_path=abs_target_path,
+                                                  include_cam_model=INCLUDE_CAMERA_MODEL,
+                                                  keywords_to_keep=KEYWORDS_TO_KEEP,
+                                                  replace_chars_in_model=REPLACE_CHARS_IN_MODEL)
         rtn = jpg.move_file(os.path.join(abs_src_path, file), new_path, new_filename,
                             PROCESS_DOUBLES)
         if rtn[0]:
-            logger.debug('moved file {} to {}'.format(file, rtn[0]))
+            logger.debug(f'moved file {file} to {rtn[0]}')
             files['moved'] += 1
         else:
             logger.info(
-                'file {} is a double and has not been processed (PROCESS_DOUBLES SET TO {}'.format(
-                    file, PROCESS_DOUBLES))
+                f'file {file} is a double and has not been processed (PROCESS_DOUBLES SET TO {PROCESS_DOUBLES}'
+            )
         if rtn[1]:
             files['double'] += 1
 
@@ -198,12 +202,9 @@ if __name__ == '__main__':
     e = threading.Event()
 
     main_thread = threading.Thread(name='main_operation',
-                                    target = main_operation,
-                                    args=(abs_src_path, abs_target_path, logger, e))
-    print_thread = threading.Thread(name='print_info',
-                                        target=print_info,
-                                        args=(e,),
-                                        daemon = True)
+                                   target=main_operation,
+                                   args=(abs_src_path, abs_target_path, logger, e))
+    print_thread = threading.Thread(name='print_info', target=print_info, args=(e, ), daemon=True)
     main_thread.start()
     print_thread.start()
     main_thread.join()
