@@ -8,3 +8,4 @@ images/
 exif-master-docs/
 __pycache__/
 .vscode/
+venv/
